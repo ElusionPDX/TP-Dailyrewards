@@ -180,7 +180,6 @@ Citizen.CreateThread(function()
 end)
 	exports['qb-target']:RemoveZone("rewardsguy")
 	local pos = Config.rewards
-	print(pos)
 	exports['qb-target']:AddBoxZone("rewardsguy", vector3(pos.x, pos.y, pos.z), 0.5, 0.5, {
       name = "rewardsguy", 
       heading = 100, 
