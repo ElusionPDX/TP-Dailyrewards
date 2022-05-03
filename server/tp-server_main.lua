@@ -42,7 +42,7 @@ Citizen.CreateThread(function()
                     if currentDay < 28 and playerData[xPlayer.source].day + 1 <= 28 then
 
                         MySQL.Sync.execute('UPDATE dailyrewards SET current_day = @current_day, day = day + 1, received = @received, received_hour = @received_hour WHERE identifier = @identifier', {
-                            ["identifier"] = xPlayer.getcitizenid(),
+                            ["identifier"] = xPlayer.PlayerData.citizenid,
                             ["current_day"] = currentDay,
                             ["received"] = 0,
                             ["received_hour"] = nil,
@@ -57,7 +57,7 @@ Citizen.CreateThread(function()
                 if data.received == 0 and data.current_day ~= currentDay then
 
                     MySQL.Sync.execute('UPDATE dailyrewards SET current_day = @current_day WHERE identifier = @identifier', {
-                        ["identifier"] = xPlayer.getcitizenid(),
+                        ["identifier"] = xPlayer.PlayerData.citizenid,
                         ["current_day"] = currentDay,
                     }) 
 
@@ -79,14 +79,14 @@ AddEventHandler("tp-dailyrewards:loadPlayerInformation", function()
 
     if xPlayer then
         MySQL.Async.fetchAll('SELECT * from dailyrewards WHERE identifier = @identifier',{
-            ["@identifier"] = xPlayer.getcitizenid()
+            ["@identifier"] = xPlayer.PlayerData.citizenid
         },function (info)
             if info[1] == nil then
                 local date = os.date("*t")
 
                 MySQL.Async.execute('INSERT INTO dailyrewards (identifier, name, current_day) VALUES (@identifier, @name, @current_day)',
                 {
-                    ['@identifier'] = xPlayer.getcitizenid(),
+                    ['@identifier'] = xPlayer.PlayerData.citizenid,
                     ['@name'] = GetPlayerName(source),
                     ['@current_day'] = tonumber(date.day)
                 })
@@ -97,11 +97,12 @@ AddEventHandler("tp-dailyrewards:loadPlayerInformation", function()
             end
         end)
     end
+	print(playerData)
 end)
 
 RegisterServerEvent("tp-dailyrewards:claimReward")
 AddEventHandler("tp-dailyrewards:claimReward", function (week, day)
-
+	local source = source
     local xPlayer = QBCore.Functions.GetPlayer(source)
 
     if xPlayer then
@@ -115,19 +116,20 @@ AddEventHandler("tp-dailyrewards:claimReward", function (week, day)
                 time = os.date("*t") 
         
                 MySQL.Sync.execute('UPDATE dailyrewards SET received = @received, received_hour = @received_hour WHERE identifier = @identifier', {
-                    ["identifier"] = xPlayer.getcitizenid(),
+                    ["identifier"] = xPlayer.PlayerData.citizenid,
                     ["received"] = 1,
                     ["received_hour"] = tonumber(time.hour),
                 }) 
-        
-                playerData[xPlayer.source].received = 1
-                playerData[xPlayer.source].received_hour = tonumber(time.hour)
+			print(playerData[source])
+                playerData[source].received = 1
+                playerData[source].received_hour = tonumber(time.hour)
+				print("doing")
             
                 if type  == 'item' then
                     xPlayer.Functions.AddItem(givenReward, givenAmount)
 					
                 elseif type == 'money' then
-                    xPlayer.Functions.AddMoney(givenAmount)
+                    xPlayer.Functions.AddMoney('cash', givenAmount)
             
                 elseif type == 'markedbills' then
 					local info = {
@@ -147,7 +149,7 @@ AddEventHandler("tp-dailyrewards:claimReward", function (week, day)
                                 xPlayer.Functions.AddItem(v.name, v.amount)
 								
                             elseif v.type == 'money' then
-                                xPlayer.Functions.AddMoney(v.amount)
+                                xPlayer.Functions.AddMoney('cash', v.amount)
                         
                             elseif v.type == 'markedbills' then
 										local info = {
@@ -163,12 +165,12 @@ AddEventHandler("tp-dailyrewards:claimReward", function (week, day)
                     end
                 end
         
-                TriggerClientEvent('tp-dailyrewards:openDailyRewards', xPlayer.source)
+                TriggerClientEvent('tp-dailyrewards:openDailyRewards', source)
             
                 if Config.MythicNotifyMessage then
-                    TriggerClientEvent('mythic_notify:client:SendAlert', xPlayer.source, { type = 'inform', text = _U("rewards_claimed_for_day") .. day})
+                    TriggerClientEvent('mythic_notify:client:SendAlert',source, { type = 'inform', text = _U("rewards_claimed_for_day") .. day})
                 else
-                    TriggerClientEvent('QBCore:Notify', xPlayer.source, Config.rewards_claimed_for_day .. day)
+                    TriggerClientEvent('QBCore:Notify', source, Config.rewards_claimed_for_day .. day)
                 end
             end    
         end
@@ -183,10 +185,10 @@ QBCore.Functions.CreateCallback("tp-dailyrewards:fetchUserInformation", function
 
    local xPlayer = QBCore.Functions.GetPlayer(source)
 	 
-    if playerData[xPlayer.source] then
-        cb(playerData[xPlayer.source])
+    if playerData[source] then
+        cb(playerData[source])
     else
         cb(nil)
     end
-
+print(playerData[source])
 end)

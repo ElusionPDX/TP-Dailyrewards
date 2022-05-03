@@ -1,10 +1,14 @@
 Config              = {}
 
-Config.Locale       = "en"
 
-Config.server_prefix = "[Your Server Name]",
+Config.server_prefix = "[Your Server Name]"
 
-Config.rewards_claimed_for_day = "Rewards claimed for day ",
+Config.rewards_claimed_for_day = "Rewards claimed for day "
+  
+Pedlocation = vector4(213.7373, -925.9403, 29.6920, 99.9311)
+RewardsPed = 'u_m_m_vince' 		-- Ped model 
+Gender = 'male'					-- Ped gender
+
   
 -- Checks if player received reward / not and day changed to update its data.
 -- Default is every 10 minutes.
@@ -46,7 +50,7 @@ Config.DailyRewards = {
         {
             day = 1,
             dayReward = {
-                type = 'markedbills',
+                type = 'money',
                 reward = 'CASH',
                 amount = 50,
                 title = 'CASH',
@@ -386,3 +390,23 @@ Config.DailyRewards = {
         },
     },
 }
+
+--\\\\\\\\\\\\\\\Dont edit\\\\\\\\\\\\\\\--
+Config.GenderNumbers = { -- No reason to touch these.
+	['male'] = 4,
+	['female'] = 5
+}
+Config.rewards = Pedlocation
+Config.PedList = {
+{
+    model = RewardsPed,
+    coords = Pedlocation,
+    gender = Gender
+},
+}
+--Some ped control stuff
+Config.Invincible = true -- Is the ped going to be invincible?
+Config.Frozen = true -- Is the ped frozen in place?
+Config.Staic = true -- Will the ped react to events around them?
+Config.FadeIn = true -- Will the ped fade in and out based on the distance.
+Config.DistanceSpawn = 20.0 -- Distance before spawning/despawning the ped.

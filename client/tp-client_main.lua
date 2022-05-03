@@ -23,7 +23,6 @@ local uiType = 'enable_dailyrewards'
 
 cachedData = {}
 
-
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
 	Citizen.SetTimeout(100, function()
@@ -79,12 +78,13 @@ end)
 
 RegisterNetEvent('tp-dailyrewards:openDailyRewards')
 AddEventHandler('tp-dailyrewards:openDailyRewards', function()
-
+TriggerServerEvent('tp-dailyrewards:loadPlayerInformation')
+Wait(2000)
 	if not isDead then
 
 		QBCore.Functions.TriggerCallback('tp-dailyrewards:fetchUserInformation', function(cb) 
 
-			local week = Weeks[ tostring(cb.day) ]
+			local week = Weeks[tostring(cb.day)]
 			local weekDays = WeekDays[ week ]
 	
 			SendNUIMessage({
@@ -178,3 +178,23 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
+	exports['qb-target']:RemoveZone("rewardsguy")
+	local pos = Config.rewards
+	print(pos)
+	exports['qb-target']:AddBoxZone("rewardsguy", vector3(pos.x, pos.y, pos.z), 0.5, 0.5, {
+      name = "rewardsguy", 
+      heading = 100, 
+      debugPoly = false, 
+      minZ = pos.z -0.1, 
+      maxZ = pos.z +1.5, 
+    }, {
+      options = { 
+        {
+          type = "client",
+          event = "tp-dailyrewards:openDailyRewards", 
+          icon = "fa-solid fa-gift", 
+          label = "Claim Rewards", 
+        },
+      },
+      distance = 2.5,
+    })
