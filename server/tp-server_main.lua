@@ -97,7 +97,6 @@ AddEventHandler("tp-dailyrewards:loadPlayerInformation", function()
             end
         end)
     end
-	print(playerData)
 end)
 
 RegisterServerEvent("tp-dailyrewards:claimReward")
@@ -190,5 +189,4 @@ QBCore.Functions.CreateCallback("tp-dailyrewards:fetchUserInformation", function
     else
         cb(nil)
     end
-print(playerData[source])
 end)
