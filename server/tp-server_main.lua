@@ -3,9 +3,7 @@ playerData = {}
 
 -- OnNewMonth, reset all dailyrewards table data.
 AddEventHandler('onResourceStart', function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
-      return
-    end
+
 
     local date = os.date("*t")
     local currentDay = tonumber(date.day)
@@ -19,17 +17,34 @@ AddEventHandler('onResourceStart', function(resourceName)
     MySQL.Sync.execute('DELETE FROM dailyrewards WHERE day = 28') 
 
 
+	
 end)
-
+Citizen.CreateThread(function()
+	while true do
+	Citizen.Wait(60000)
+		local time2 = os.date("*t") 
+		--yaya = tonumber(time2.hour)
+		--yaya2 = tonumber(time2.min)
+		--print( yaya .. ":".. yaya2)
+		if time2.hour == 23 and time2.min == 54 then
+		MySQL.Async.execute("UPDATE `dailyrewards` SET `received` = @received", {["received"] = 0})
+		end
+	end
+end)
+--MySQL.Async.execute("UPDATE `dailyrewards` SET `received` = @received", {["received"] = 0})
 Citizen.CreateThread(function()
     while true do
 
-        Citizen.Wait(60000 * Config.ThreadRepeat)
-  
+        Citizen.Wait(120000)
+  --print("checked")
         local date = os.date("*t")
 
         local currentHour, currentDay = tonumber(date.hour), tonumber(date.day)
-
+		MySQL.Async.execute("UPDATE `dailyrewards` SET `current_day` = @current_day, `day` = @day", 
+				{
+				["current_day"] = currentDay,
+				["day"] = currentDay
+				})
         for k,v in pairs(QBCore.Functions.GetPlayers) do
 
             if v and playerData[v] then
@@ -97,6 +112,7 @@ AddEventHandler("tp-dailyrewards:loadPlayerInformation", function()
             end
         end)
     end
+	print(playerData)
 end)
 
 RegisterServerEvent("tp-dailyrewards:claimReward")
@@ -113,11 +129,23 @@ AddEventHandler("tp-dailyrewards:claimReward", function (week, day)
                 local type, givenReward, givenAmount = v.dayReward.type, v.dayReward.reward, v.dayReward.amount
             
                 time = os.date("*t") 
-        
-                MySQL.Sync.execute('UPDATE dailyrewards SET received = @received, received_hour = @received_hour WHERE identifier = @identifier', {
+				---
+				MySQL.Async.fetchAll('SELECT * from dailyrewards WHERE identifier = @identifier',{
+				["@identifier"] = xPlayer.PlayerData.citizenid
+					},function (info)
+					day2 = info[1].day
+					print(day2)
+					end)
+				---
+				Wait(1500)
+				local day3 = day2 + 1
+				Wait(500)
+				
+                MySQL.Sync.execute('UPDATE dailyrewards SET received = @received, received_hour = @received_hour, day = @day WHERE identifier = @identifier', {
                     ["identifier"] = xPlayer.PlayerData.citizenid,
                     ["received"] = 1,
                     ["received_hour"] = tonumber(time.hour),
+					["day"] = day3,
                 }) 
 			print(playerData[source])
                 playerData[source].received = 1
@@ -189,4 +217,5 @@ QBCore.Functions.CreateCallback("tp-dailyrewards:fetchUserInformation", function
     else
         cb(nil)
     end
+print(playerData[source])
 end)
