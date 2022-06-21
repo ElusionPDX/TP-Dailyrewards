@@ -101,22 +101,19 @@ Wait(2000)
 			Wait(200)
 
 			for k,v in pairs(Config.DailyRewards[ week ]) do
-
-
-				if cb.received == 0 and v.day == cb.day then
+				if cb.received == 0 and cb.current_day == v.day then
 					SendNUIMessage({
 						action = 'addDays',
 						day_detail = v.dayReward,
 						status = 'canClaim'
 					})
-				elseif (v.day < cb.day) or (cb.received == 1 and v.day == cb.day) then
+				elseif (v.day < cb.day) then
 					SendNUIMessage({
 						action = 'addDays',
 						day_detail = v.dayReward,
 						status = 'claimed'
-					})					
+					})			
 				else
-	
 					SendNUIMessage({
 						action = 'addDays',
 						day_detail = v.dayReward,
@@ -129,7 +126,7 @@ Wait(2000)
 			SendNUIMessage({
 				action        = 'addPlayerDetails',
 				current_day   = cb.current_day,
-				day           = cb.day,
+				day           = cb.current_day,
 				received_hour = cb.received_hour
 			})
 			
@@ -180,6 +177,7 @@ Citizen.CreateThread(function()
 end)
 	exports['qb-target']:RemoveZone("rewardsguy")
 	local pos = Config.rewards
+	print(pos)
 	exports['qb-target']:AddBoxZone("rewardsguy", vector3(pos.x, pos.y, pos.z), 0.5, 0.5, {
       name = "rewardsguy", 
       heading = 100, 
